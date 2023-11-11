@@ -1,6 +1,6 @@
 # plugin_firebase
 
-`Android` `iOS` `Windows`
+`Android` `iOS`
 
 Plugin helps request, show and handle the notification on Android/iOS via FCM.
 
@@ -54,7 +54,7 @@ void dispose() {
 
 ```
 
-### Config crashlytícs
+### Config crashlytícs.
 
 ```
 import 'package:plugin_firebase/index.dart';
