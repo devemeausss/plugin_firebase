@@ -1,5 +1,7 @@
 # plugin_firebase
 
+`Android` `iOS` `Windows`
+
 Plugin helps request, show and handle the notification on Android/iOS via FCM.
 
 ## Getting started
