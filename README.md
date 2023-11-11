@@ -8,18 +8,18 @@ Plugin helps request, show and handle the notification on Android/iOS via FCM.
 
 This will add a line like this to your package's pubspec.yaml (and run an implicit flutter pub get):
 
-```
+```yaml
 dependencies:
   git:
-      url: https://github.com/devemeausss/plugin_firebase
-      ref: 63e49deec8703df95ca672842b1fdd66d328ed28
+    url: https://github.com/devemeausss/plugin_firebase
+    ref: 63e49deec8703df95ca672842b1fdd66d328ed28
 ```
 
 ## How to use
 
 ### Config notification
 
-```
+```dart
 import 'package:plugin_firebase/index.dart';
 
 @override
@@ -56,7 +56,7 @@ void dispose() {
 
 ### Config crashlytícs.
 
-```
+```dart
 import 'package:plugin_firebase/index.dart';
 
 void main() {
@@ -68,7 +68,7 @@ void main() {
 
 ### Handle deeplink
 
-```
+```dart
 import 'package:plugin_firebase/index.dart';
 
 @override
