@@ -41,7 +41,8 @@ class MyPluginNotification {
   }
 
   static Future<void> settingNotification(
-      {required Color colorNotification,
+      {String? currentFCMToken,
+      required Color colorNotification,
       required bool Function(RemoteMessage message) onShowLocalNotification,
       required Function(RemoteMessage message) onMessage,
       required Function(String payload) onOpenLocalMessage,
@@ -77,7 +78,8 @@ class MyPluginNotification {
           onDidReceiveNotificationResponse: (NotificationResponse? data) async {
         onOpenLocalMessage(data?.payload ?? '');
       });
-      Map<String, dynamic> body = await getInfoToRequest();
+      Map<String, dynamic> body =
+          await getInfoToRequest(currentFCMToken: currentFCMToken);
       onRegisterFCM(body);
       _fcmListener = FirebaseMessaging.onMessage
           .asBroadcastStream()
@@ -127,8 +129,11 @@ class MyPluginNotification {
             FirebaseCrashlytics.instance.recordError(error, stack));
   }
 
-  static Future<Map<String, dynamic>> getInfoToRequest() async {
-    String? token = await _messaging.getToken();
+  static Future<Map<String, dynamic>> getInfoToRequest(
+      {String? currentFCMToken}) async {
+    String? token = currentFCMToken;
+    token ??= await _messaging.getToken();
+
     String meId = await MyPluginFirebase.getMeIdDevice();
     Map<String, dynamic> body = {
       "type": "M", // M: Mobile, P: Portal
