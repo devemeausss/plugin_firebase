@@ -12,7 +12,7 @@ This will add a line like this to your package's pubspec.yaml (and run an implic
 dependencies:
   git:
     url: https://github.com/devemeausss/plugin_firebase
-    ref: 3801d6bf728433d4fdb43c132e3ca10af4258d44
+    ref: 58e853f257c95b0e27517d9eefc0abcc7fd1accc
 ```
 
 ## How to use
