@@ -4,8 +4,12 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 
 class MyPluginFirebase {
-  static Future<String> getMeIdDevice() async {
+  static Future<String> getMeIdDevice(String? currentIMEI) async {
     String meId = '';
+    if (currentIMEI != null) {
+      return currentIMEI;
+    }
+
     try {
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidDevice = await DeviceInfoPlugin().androidInfo;

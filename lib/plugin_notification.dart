@@ -138,11 +138,11 @@ class MyPluginNotification {
   }
 
   static Future<Map<String, dynamic>> getInfoToRequest(
-      {String? currentFCMToken}) async {
+      {String? currentFCMToken, String? currentIMEI}) async {
     String? token = currentFCMToken;
     token ??= await _messaging.getToken();
 
-    String meId = await MyPluginFirebase.getMeIdDevice();
+    String meId = await MyPluginFirebase.getMeIdDevice(currentIMEI);
     Map<String, dynamic> body = {
       "type": "M", // M: Mobile, P: Portal
       "device": Platform.isAndroid ? "A" : "I", // A: Android, I: iOS
