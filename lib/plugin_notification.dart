@@ -42,6 +42,7 @@ class MyPluginNotification {
 
   static Future<void> settingNotification(
       {String? currentFCMToken,
+      String? currentIMEI,
       required Color colorNotification,
       required bool Function(RemoteMessage message) onShowLocalNotification,
       required Function(RemoteMessage message) onMessage,
@@ -86,8 +87,8 @@ class MyPluginNotification {
           onDidReceiveNotificationResponse: (NotificationResponse? data) async {
         onOpenLocalMessage(data?.payload ?? '');
       });
-      Map<String, dynamic> body =
-          await getInfoToRequest(currentFCMToken: currentFCMToken);
+      Map<String, dynamic> body = await getInfoToRequest(
+          currentFCMToken: currentFCMToken, currentIMEI: currentIMEI);
       onRegisterFCM(body);
       _fcmListener = FirebaseMessaging.onMessage
           .asBroadcastStream()
