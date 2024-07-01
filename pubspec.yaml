@@ -10,14 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.1.8
-  firebase_messaging: ^14.7.10
-  firebase_analytics: ^10.8.0
-  firebase_core: ^2.24.2
-  firebase_dynamic_links: ^5.4.8
-  firebase_crashlytics: ^3.4.9
-  flutter_local_notifications: ^15.1.1
-  device_info_plus: ^9.1.1
+  plugin_platform_interface: ^2.0.2
+  firebase_messaging: ^14.7.21
+  firebase_analytics: ^10.9.0
+  firebase_core: ^2.27.2
+  firebase_crashlytics: ^3.4.20
+  flutter_local_notifications: ^17.0.0
+  device_info_plus: ^10.0.1
 
 dev_dependencies:
   flutter_test:
