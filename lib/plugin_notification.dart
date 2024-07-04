@@ -73,7 +73,7 @@ class MyPluginNotification {
         await _flutterLocalNotificationsPlugin
             .resolvePlatformSpecificImplementation<
                 AndroidFlutterLocalNotificationsPlugin>()!
-            .requestNotificationsPermission();
+            .requestPermission();
       }
 
       if (Platform.isIOS) {
