@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -115,7 +114,7 @@ class MyPluginNotification {
               title: message.notification!.title!,
               body: message.notification!.body!,
               color: colorNotification,
-              payload: jsonEncode(message.data),
+              // payload: jsonEncode(message.data),
               chanelId: chanelId,
               chanelName: chanelName,
               channelDescription: channelDescription,
