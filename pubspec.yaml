@@ -15,7 +15,7 @@ dependencies:
   firebase_analytics: ^10.9.0
   firebase_core: ^2.27.2
   firebase_crashlytics: ^3.4.20
-  flutter_local_notifications: ^15.1.1
+  flutter_local_notifications: ^16.1.0
   device_info_plus: ^10.0.1
 
 dev_dependencies:
