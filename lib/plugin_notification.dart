@@ -69,37 +69,34 @@ class MyPluginNotification {
       sound: true,
     );
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      var initializationSettingsAndroid =
-          AndroidInitializationSettings(iconNotification);
-      var initializationSettingsIOS = const DarwinInitializationSettings();
-      var initializationSettings = InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsIOS);
-      if (Platform.isAndroid) {
-        await _flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<
-                AndroidFlutterLocalNotificationsPlugin>()
-            ?.createNotificationChannel(
-                AndroidNotificationChannel(chanelId, chanelName));
-        await _flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<
-                AndroidFlutterLocalNotificationsPlugin>()!
-            .requestNotificationsPermission();
-        _flutterLocalNotificationsPlugin.initialize(initializationSettings,
-            onDidReceiveNotificationResponse:
-                (NotificationResponse? data) async {
-          onOpenLocalMessage(data?.payload ?? '');
-        });
-      }
+      // var initializationSettingsAndroid =
+      //     AndroidInitializationSettings(iconNotification);
+      // var initializationSettingsIOS = const DarwinInitializationSettings();
+      // var initializationSettings = InitializationSettings(
+      //     android: initializationSettingsAndroid,
+      //     iOS: initializationSettingsIOS);
 
-      if (Platform.isIOS) {
-        await FirebaseMessaging.instance
-            .setForegroundNotificationPresentationOptions(
-          alert: isShowLocalNotificationFromFirebase,
-          badge: true,
-          sound: true,
-        );
-      }
+      var channel = const AndroidNotificationChannel(
+        'high_importance_channel', // id
+        'High Importance Notifications', // title
+        description:
+            'This channel is used for important notifications.', // description
+        importance: Importance.high,
+      );
+
+      await _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+
+      /// Update the iOS foreground notification presentation options to allow
+      /// heads up notifications.
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
       Map<String, dynamic> body = await getInfoToRequest(
           currentFCMToken: currentFCMToken, currentIMEI: currentIMEI);
