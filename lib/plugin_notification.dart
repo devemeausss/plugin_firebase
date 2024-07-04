@@ -59,7 +59,7 @@ class MyPluginNotification {
       required Function(String payload) onOpenLocalMessage,
       required Function(RemoteMessage message) onOpenFCMMessage,
       required Function(Map<String, dynamic> token) onRegisterFCM,
-      required String iconNotification,
+      String? iconNotification,
       required String chanelId,
       required String chanelName,
       required String channelDescription}) async {
