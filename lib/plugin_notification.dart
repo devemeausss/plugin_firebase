@@ -36,8 +36,13 @@ class MyPluginNotification {
 
     var platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
-    await _flutterLocalNotificationsPlugin
-        .show(0, title, body, platformChannelSpecifics, payload: payload ?? '');
+    await _flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+      payload: payload ?? '',
+    );
   }
 
   static Future<void> settingNotification(
@@ -45,6 +50,7 @@ class MyPluginNotification {
       String? currentIMEI,
       required Color colorNotification,
       required bool Function(RemoteMessage message) onShowLocalNotification,
+      bool isShowLocalNotificationFromFirebase = true,
       required Function(RemoteMessage message) onMessage,
       required Function(String payload) onOpenLocalMessage,
       required Function(RemoteMessage message) onOpenFCMMessage,
@@ -72,21 +78,29 @@ class MyPluginNotification {
       if (Platform.isAndroid) {
         await _flutterLocalNotificationsPlugin
             .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.createNotificationChannel(
+                AndroidNotificationChannel(chanelId, chanelName));
+        await _flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
                 AndroidFlutterLocalNotificationsPlugin>()!
             .requestNotificationsPermission();
+        _flutterLocalNotificationsPlugin.initialize(initializationSettings,
+            onDidReceiveNotificationResponse:
+                (NotificationResponse? data) async {
+          onOpenLocalMessage(data?.payload ?? '');
+        });
       }
 
       if (Platform.isIOS) {
-        await _flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<
-                IOSFlutterLocalNotificationsPlugin>()!
-            .requestPermissions(alert: true, badge: true);
+        await FirebaseMessaging.instance
+            .setForegroundNotificationPresentationOptions(
+          alert: isShowLocalNotificationFromFirebase,
+          badge: true,
+          sound: true,
+        );
       }
 
-      _flutterLocalNotificationsPlugin.initialize(initializationSettings,
-          onDidReceiveNotificationResponse: (NotificationResponse? data) async {
-        onOpenLocalMessage(data?.payload ?? '');
-      });
       Map<String, dynamic> body = await getInfoToRequest(
           currentFCMToken: currentFCMToken, currentIMEI: currentIMEI);
       onRegisterFCM(body);
@@ -95,7 +109,7 @@ class MyPluginNotification {
         print('Got a message whilst in the foreground!');
         onMessage(message);
         if (message.notification != null) {
-          if (onShowLocalNotification(message)) {
+          if (onShowLocalNotification(message) && Platform.isAndroid) {
             await _showNotification(
                 title: message.notification!.title!,
                 body: message.notification!.body!,
