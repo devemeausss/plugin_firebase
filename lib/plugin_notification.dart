@@ -16,14 +16,17 @@ class MyPluginNotification {
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static StreamSubscription? _fcmListener;
 
-  static Future<void> _showNotification(
-      {required String title,
-      required String body,
-      required Color color,
-      String? payload,
-      chanelId,
-      chanelName,
-      channelDescription}) async {
+  static Future<void> _showNotification({
+    required String title,
+    required String body,
+    required Color color,
+    String? payload,
+    required int hashCode,
+    chanelId,
+    chanelName,
+    channelDescription,
+    String? icon,
+  }) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       chanelId,
       chanelName,
@@ -32,12 +35,13 @@ class MyPluginNotification {
       showProgress: true,
       priority: Priority.high,
       color: color,
+      icon: icon,
     );
 
     var platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
     await _flutterLocalNotificationsPlugin.show(
-      0,
+      hashCode,
       title,
       body,
       platformChannelSpecifics,
@@ -107,13 +111,16 @@ class MyPluginNotification {
         if (message.notification != null) {
           if (onShowLocalNotification(message) && Platform.isAndroid) {
             await _showNotification(
-                title: message.notification!.title!,
-                body: message.notification!.body!,
-                color: colorNotification,
-                payload: jsonEncode(message.data),
-                chanelId: chanelId,
-                chanelName: chanelName,
-                channelDescription: channelDescription);
+              hashCode: message.notification!.hashCode,
+              title: message.notification!.title!,
+              body: message.notification!.body!,
+              color: colorNotification,
+              payload: jsonEncode(message.data),
+              chanelId: chanelId,
+              chanelName: chanelName,
+              channelDescription: channelDescription,
+              icon: iconNotification,
+            );
           }
         }
       });
