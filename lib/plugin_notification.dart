@@ -76,11 +76,10 @@ class MyPluginNotification {
       //     android: initializationSettingsAndroid,
       //     iOS: initializationSettingsIOS);
 
-      var channel = const AndroidNotificationChannel(
-        'high_importance_channel', // id
-        'High Importance Notifications', // title
-        description:
-            'This channel is used for important notifications.', // description
+      var channel = AndroidNotificationChannel(
+        chanelId, // id
+        chanelName, // title
+        description: channelDescription, // description
         importance: Importance.high,
       );
 
