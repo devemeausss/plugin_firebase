@@ -90,9 +90,8 @@ class MyPluginNotification {
       Map<String, dynamic> body = await getInfoToRequest(
           currentFCMToken: currentFCMToken, currentIMEI: currentIMEI);
       onRegisterFCM(body);
-      _fcmListener = FirebaseMessaging.onMessage
-          .asBroadcastStream()
-          .listen((RemoteMessage message) async {
+      _fcmListener =
+          FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
         print('Got a message whilst in the foreground!');
         onMessage(message);
         if (message.notification != null) {
