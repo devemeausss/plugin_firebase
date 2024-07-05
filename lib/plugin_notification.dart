@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -20,11 +21,9 @@ class MyPluginNotification {
     required String body,
     required Color color,
     String? payload,
-    required int hashCode,
     chanelId,
     chanelName,
     channelDescription,
-    String? icon,
   }) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       chanelId,
@@ -34,18 +33,12 @@ class MyPluginNotification {
       showProgress: true,
       priority: Priority.high,
       color: color,
-      icon: icon,
     );
 
     var platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
-    await _flutterLocalNotificationsPlugin.show(
-      hashCode,
-      title,
-      body,
-      platformChannelSpecifics,
-      payload: payload ?? '',
-    );
+    await _flutterLocalNotificationsPlugin
+        .show(0, title, body, platformChannelSpecifics, payload: payload ?? '');
   }
 
   static Future<void> settingNotification(
@@ -58,7 +51,7 @@ class MyPluginNotification {
       required Function(String payload) onOpenLocalMessage,
       required Function(RemoteMessage message) onOpenFCMMessage,
       required Function(Map<String, dynamic> token) onRegisterFCM,
-      String? iconNotification,
+      required String iconNotification,
       required String chanelId,
       required String chanelName,
       required String channelDescription}) async {
@@ -72,33 +65,31 @@ class MyPluginNotification {
       sound: true,
     );
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      // var initializationSettingsAndroid =
-      //     AndroidInitializationSettings(iconNotification);
-      // var initializationSettingsIOS = const DarwinInitializationSettings();
-      // var initializationSettings = InitializationSettings(
-      //     android: initializationSettingsAndroid,
-      //     iOS: initializationSettingsIOS);
+      var initializationSettingsAndroid =
+          AndroidInitializationSettings(iconNotification);
+      var initializationSettingsIOS = const DarwinInitializationSettings();
+      var initializationSettings = InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS);
 
-      var channel = AndroidNotificationChannel(
-        chanelId, // id
-        chanelName, // title
-        description: channelDescription, // description
-        importance: Importance.high,
-      );
+      if (Platform.isAndroid) {
+        await _flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()!
+            .requestNotificationsPermission();
+      }
 
-      await _flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(channel);
+      if (Platform.isIOS) {
+        await _flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                IOSFlutterLocalNotificationsPlugin>()!
+            .requestPermissions(alert: true, badge: true);
+      }
 
-      /// Update the iOS foreground notification presentation options to allow
-      /// heads up notifications.
-      await FirebaseMessaging.instance
-          .setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      _flutterLocalNotificationsPlugin.initialize(initializationSettings,
+          onDidReceiveNotificationResponse: (NotificationResponse? data) async {
+        onOpenLocalMessage(data?.payload ?? '');
+      });
 
       Map<String, dynamic> body = await getInfoToRequest(
           currentFCMToken: currentFCMToken, currentIMEI: currentIMEI);
@@ -108,17 +99,15 @@ class MyPluginNotification {
         print('Got a message whilst in the foreground!');
         onMessage(message);
         if (message.notification != null) {
-          if (onShowLocalNotification(message) && Platform.isAndroid) {
+          if (onShowLocalNotification(message)) {
             await _showNotification(
-              hashCode: message.notification!.hashCode,
               title: message.notification!.title!,
               body: message.notification!.body!,
               color: colorNotification,
-              // payload: jsonEncode(message.data),
+              payload: jsonEncode(message.data),
               chanelId: chanelId,
               chanelName: chanelName,
               channelDescription: channelDescription,
-              icon: iconNotification,
             );
           }
         }
