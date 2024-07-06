@@ -16,15 +16,14 @@ class MyPluginNotification {
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static StreamSubscription? _fcmListener;
 
-  static Future<void> _showNotification({
-    required String title,
-    required String body,
-    required Color color,
-    String? payload,
-    chanelId,
-    chanelName,
-    channelDescription,
-  }) async {
+  static Future<void> _showNotification(
+      {required String title,
+      required String body,
+      required Color color,
+      String? payload,
+      chanelId,
+      chanelName,
+      channelDescription}) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       chanelId,
       chanelName,
@@ -46,7 +45,6 @@ class MyPluginNotification {
       String? currentIMEI,
       required Color colorNotification,
       required bool Function(RemoteMessage message) onShowLocalNotification,
-      bool isShowLocalNotificationFromFirebase = true,
       required Function(RemoteMessage message) onMessage,
       required Function(String payload) onOpenLocalMessage,
       required Function(RemoteMessage message) onOpenFCMMessage,
@@ -71,7 +69,6 @@ class MyPluginNotification {
       var initializationSettings = InitializationSettings(
           android: initializationSettingsAndroid,
           iOS: initializationSettingsIOS);
-
       if (Platform.isAndroid) {
         await _flutterLocalNotificationsPlugin
             .resolvePlatformSpecificImplementation<
@@ -90,25 +87,24 @@ class MyPluginNotification {
           onDidReceiveNotificationResponse: (NotificationResponse? data) async {
         onOpenLocalMessage(data?.payload ?? '');
       });
-
       Map<String, dynamic> body = await getInfoToRequest(
           currentFCMToken: currentFCMToken, currentIMEI: currentIMEI);
       onRegisterFCM(body);
-      _fcmListener =
-          FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      _fcmListener = FirebaseMessaging.onMessage
+          .asBroadcastStream()
+          .listen((RemoteMessage message) async {
         print('Got a message whilst in the foreground!');
         onMessage(message);
         if (message.notification != null) {
           if (onShowLocalNotification(message)) {
             await _showNotification(
-              title: message.notification!.title!,
-              body: message.notification!.body!,
-              color: colorNotification,
-              payload: jsonEncode(message.data),
-              chanelId: chanelId,
-              chanelName: chanelName,
-              channelDescription: channelDescription,
-            );
+                title: message.notification!.title!,
+                body: message.notification!.body!,
+                color: colorNotification,
+                payload: jsonEncode(message.data),
+                chanelId: chanelId,
+                chanelName: chanelName,
+                channelDescription: channelDescription);
           }
         }
       });
