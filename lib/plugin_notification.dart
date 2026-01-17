@@ -13,17 +13,18 @@ import 'package:plugin_firebase/plugin_firebase.dart';
 class MyPluginNotification {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin
-      _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static StreamSubscription? _fcmListener;
 
-  static Future<void> _showNotification(
-      {required String title,
-      required String body,
-      required Color color,
-      String? payload,
-      chanelId,
-      chanelName,
-      channelDescription}) async {
+  static Future<void> _showNotification({
+    required String title,
+    required String body,
+    required Color color,
+    String? payload,
+    chanelId,
+    chanelName,
+    channelDescription,
+  }) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       chanelId,
       chanelName,
@@ -34,25 +35,32 @@ class MyPluginNotification {
       color: color,
     );
 
-    var platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await _flutterLocalNotificationsPlugin
-        .show(0, title, body, platformChannelSpecifics, payload: payload ?? '');
+    var platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+    await _flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+      payload: payload ?? '',
+    );
   }
 
-  static Future<void> settingNotification(
-      {String? currentFCMToken,
-      String? currentIMEI,
-      required Color colorNotification,
-      required bool Function(RemoteMessage message) onShowLocalNotification,
-      required Function(RemoteMessage message) onMessage,
-      required Function(String payload) onOpenLocalMessage,
-      required Function(RemoteMessage message) onOpenFCMMessage,
-      required Function(Map<String, dynamic> token) onRegisterFCM,
-      required String iconNotification,
-      required String chanelId,
-      required String chanelName,
-      required String channelDescription}) async {
+  static Future<void> settingNotification({
+    String? currentFCMToken,
+    String? currentIMEI,
+    required Color colorNotification,
+    required bool Function(RemoteMessage message) onShowLocalNotification,
+    required Function(RemoteMessage message) onMessage,
+    required Function(String payload) onOpenLocalMessage,
+    required Function(RemoteMessage message) onOpenFCMMessage,
+    required Function(Map<String, dynamic> token) onRegisterFCM,
+    required String iconNotification,
+    required String chanelId,
+    required String chanelName,
+    required String channelDescription,
+  }) async {
     NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
       announcement: false,
@@ -63,48 +71,57 @@ class MyPluginNotification {
       sound: true,
     );
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      var initializationSettingsAndroid =
-          AndroidInitializationSettings(iconNotification);
+      var initializationSettingsAndroid = AndroidInitializationSettings(
+        iconNotification,
+      );
       var initializationSettingsIOS = const DarwinInitializationSettings();
       var initializationSettings = InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsIOS);
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsIOS,
+      );
       if (Platform.isAndroid) {
         await _flutterLocalNotificationsPlugin
             .resolvePlatformSpecificImplementation<
-                AndroidFlutterLocalNotificationsPlugin>()!
+              AndroidFlutterLocalNotificationsPlugin
+            >()!
             .requestNotificationsPermission();
       }
 
       if (Platform.isIOS) {
         await _flutterLocalNotificationsPlugin
             .resolvePlatformSpecificImplementation<
-                IOSFlutterLocalNotificationsPlugin>()!
+              IOSFlutterLocalNotificationsPlugin
+            >()!
             .requestPermissions(alert: true, badge: true);
       }
 
-      _flutterLocalNotificationsPlugin.initialize(initializationSettings,
-          onDidReceiveNotificationResponse: (NotificationResponse? data) async {
-        onOpenLocalMessage(data?.payload ?? '');
-      });
+      _flutterLocalNotificationsPlugin.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse? data) async {
+          onOpenLocalMessage(data?.payload ?? '');
+        },
+      );
       Map<String, dynamic> body = await getInfoToRequest(
-          currentFCMToken: currentFCMToken, currentIMEI: currentIMEI);
+        currentFCMToken: currentFCMToken,
+        currentIMEI: currentIMEI,
+      );
       onRegisterFCM(body);
-      _fcmListener = FirebaseMessaging.onMessage
-          .asBroadcastStream()
-          .listen((RemoteMessage message) async {
+      _fcmListener = FirebaseMessaging.onMessage.asBroadcastStream().listen((
+        RemoteMessage message,
+      ) async {
         print('Got a message whilst in the foreground!');
         onMessage(message);
         if (message.notification != null) {
           if (onShowLocalNotification(message)) {
             await _showNotification(
-                title: message.notification!.title!,
-                body: message.notification!.body!,
-                color: colorNotification,
-                payload: jsonEncode(message.data),
-                chanelId: chanelId,
-                chanelName: chanelName,
-                channelDescription: channelDescription);
+              title: message.notification!.title!,
+              body: message.notification!.body!,
+              color: colorNotification,
+              payload: jsonEncode(message.data),
+              chanelId: chanelId,
+              chanelName: chanelName,
+              channelDescription: channelDescription,
+            );
           }
         }
       });
@@ -112,34 +129,41 @@ class MyPluginNotification {
     }
   }
 
-  static Future<void> _setupInteractedMessage(
-      {required Function onHandleFCMMessage}) async {
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
+  static Future<void> _setupInteractedMessage({
+    required Function onHandleFCMMessage,
+  }) async {
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance
+        .getInitialMessage();
     if (initialMessage != null) {
       onHandleFCMMessage(initialMessage);
     }
-    FirebaseMessaging.onMessageOpenedApp
-        .listen((message) => onHandleFCMMessage(message));
+    FirebaseMessaging.onMessageOpenedApp.listen(
+      (message) => onHandleFCMMessage(message),
+    );
   }
 
   static void setupCrashlytics({required VoidCallback main}) {
-    runZonedGuarded<Future<void>>(() async {
-      WidgetsFlutterBinding.ensureInitialized();
-      await Firebase.initializeApp();
-      main();
-      if (!kIsWeb) {
-        await FirebaseCrashlytics.instance
-            .setCrashlyticsCollectionEnabled(true);
-        FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-      }
-    },
-        (error, stack) =>
-            FirebaseCrashlytics.instance.recordError(error, stack));
+    runZonedGuarded<Future<void>>(
+      () async {
+        WidgetsFlutterBinding.ensureInitialized();
+        await Firebase.initializeApp();
+        main();
+        if (!kIsWeb) {
+          await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+            true,
+          );
+          FlutterError.onError =
+              FirebaseCrashlytics.instance.recordFlutterError;
+        }
+      },
+      (error, stack) => FirebaseCrashlytics.instance.recordError(error, stack),
+    );
   }
 
-  static Future<Map<String, dynamic>> getInfoToRequest(
-      {String? currentFCMToken, String? currentIMEI}) async {
+  static Future<Map<String, dynamic>> getInfoToRequest({
+    String? currentFCMToken,
+    String? currentIMEI,
+  }) async {
     String? token = currentFCMToken;
     token ??= await _messaging.getToken();
 
