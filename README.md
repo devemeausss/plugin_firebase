@@ -10,10 +10,14 @@ This will add a line like this to your package's pubspec.yaml (and run an implic
 
 ```yaml
 dependencies:
-  git:
-    url: https://github.com/devemeausss/plugin_firebase
-    ref: 992ea7effca8f52d87c8e7fc74b85882a3a6e6a9
+    git:
+        url: https://github.com/devemeausss/plugin_firebase
+        ref: 04c80953c35385a1c6242233039aed003f658088
 ```
+
+## Flutter SDK
+
+- Version: v3.38.7
 
 ## How to use
 
