@@ -12,7 +12,7 @@ This will add a line like this to your package's pubspec.yaml (and run an implic
 dependencies:
     git:
         url: https://github.com/devemeausss/plugin_firebase
-        ref: 04c80953c35385a1c6242233039aed003f658088
+        ref: ccee3384c69fa01afb8c325973fe61b3c98b339d
 ```
 
 ## Flutter SDK
