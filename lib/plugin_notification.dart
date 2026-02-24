@@ -26,6 +26,7 @@ class MyPluginNotification {
     String? channelDescription,
     required Map<String, dynamic> data,
   }) async {
+    String? sound = data['sound'];
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       chanelId,
       chanelName,
@@ -34,15 +35,16 @@ class MyPluginNotification {
       showProgress: true,
       priority: Priority.high,
       color: color,
-      sound: data['sound'] != null
-          ? RawResourceAndroidNotificationSound(data['sound'])
+      playSound: sound != null,
+      sound: sound != null
+          ? RawResourceAndroidNotificationSound(sound.split('.').first)
           : null,
     );
 
     var platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
-      iOS: data['sound'] != null
-          ? DarwinNotificationDetails(presentSound: true, sound: data['sound'])
+      iOS: sound != null
+          ? DarwinNotificationDetails(presentSound: true, sound: sound)
           : const DarwinNotificationDetails(),
     );
     await _flutterLocalNotificationsPlugin.show(
@@ -99,7 +101,7 @@ class MyPluginNotification {
             .resolvePlatformSpecificImplementation<
               IOSFlutterLocalNotificationsPlugin
             >()!
-            .requestPermissions(alert: true, badge: true);
+            .requestPermissions(alert: true, badge: true, sound: true);
       }
 
       _flutterLocalNotificationsPlugin.initialize(
